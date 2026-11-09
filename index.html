@@ -1,0 +1,430 @@
+<!doctype html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2F6F8F">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Mezclas">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+<title>Mezclas Nómades</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@500;700&family=Figtree:wght@400;500;600;700&display=swap">
+<style>
+  /* Concepto: hoja de cocina con la paleta azul de Nómades Foods; lista de tipos arriba, barra fija de acción abajo, resumen y envío al final. */
+  :root {
+    --bg: #F2F7F9;
+    --surface: #FFFFFF;
+    --fg: #12303D;
+    --muted: #55727F;
+    --accent: #2F6F8F;
+    --accent-fg: #FFFFFF;
+    --line: #D3E2E9;
+    --soft: #E4EFF4;
+    --go: #2E7D32;
+    --go-fg: #FFFFFF;
+    --warn: #A15C00;
+    --font-display: "Comfortaa", "Trebuchet MS", system-ui, sans-serif;
+    --font-body: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0E1B22; --surface: #152730; --fg: #E5F0F4; --muted: #8DA8B4;
+      --accent: #6DB5D4; --accent-fg: #0E1B22; --line: #29424E; --soft: #1C333E;
+      --go: #66BB6A; --go-fg: #0E1B22; --warn: #E0A04A;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0E1B22; --surface: #152730; --fg: #E5F0F4; --muted: #8DA8B4;
+    --accent: #6DB5D4; --accent-fg: #0E1B22; --line: #29424E; --soft: #1C333E;
+    --go: #66BB6A; --go-fg: #0E1B22; --warn: #E0A04A;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.45;
+    padding-block: 20px 12px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  .wrap { max-width: 880px; margin: 0 auto; display: flex; flex-direction: column; gap: 20px; }
+  h1 { font-family: var(--font-display); font-weight: 700; font-size: 1.7rem; margin: 0; color: var(--accent); letter-spacing: .02em; text-wrap: balance; }
+  h2 { font-family: var(--font-display); font-weight: 700; font-size: 1.15rem; margin: 0; text-wrap: balance; }
+  p { margin: 0; }
+  .lead { color: var(--muted); max-width: 60ch; }
+  .brand { font-family: var(--font-display); font-size: .72rem; letter-spacing: .28em; text-transform: uppercase; color: var(--muted); }
+
+  .grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
+  @media (min-width: 720px) { .grid { grid-template-columns: 1fr 1fr; gap: 10px 18px; } }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; min-width: 0; }
+  .row.on { border-color: var(--accent); }
+  .row .name { min-width: 0; }
+  .row .name b { display: block; font-weight: 600; }
+  .row .name small { color: var(--muted); font-size: .8rem; }
+  .stepper { display: flex; align-items: center; gap: 6px; flex: none; }
+  .stepper button { width: 44px; height: 44px; border-radius: 8px; border: 1px solid var(--line); background: var(--soft); color: var(--fg); font-size: 1.3rem; font-weight: 600; cursor: pointer; }
+  .stepper input { width: 72px; height: 44px; text-align: center; font: 600 1.1rem var(--font-body); font-variant-numeric: tabular-nums; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg); }
+  button, input { font-family: inherit; }
+  :focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+  .opts { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: center; justify-content: space-between; color: var(--muted); font-size: .9rem; }
+  .opts label { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+  .opts input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--accent); }
+  .link { background: none; border: 0; color: var(--accent); font-weight: 600; text-decoration: underline; cursor: pointer; padding: 8px 0; font-size: .9rem; }
+
+  .bar { position: sticky; bottom: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 10px 12px; display: flex; align-items: center; justify-content: space-between; gap: 12px; box-shadow: 0 -6px 18px color-mix(in srgb, var(--fg) 10%, transparent); z-index: 5; }
+  .bar .total { font-variant-numeric: tabular-nums; }
+  .bar .total b { font-size: 1.35rem; font-family: var(--font-display); }
+  .bar .total span { display: block; color: var(--muted); font-size: .8rem; }
+  .btn { border: 0; border-radius: 10px; padding: 13px 20px; min-height: 48px; font-size: 1.02rem; font-weight: 700; cursor: pointer; background: var(--go); color: var(--go-fg); }
+  .btn.alt { background: var(--accent); color: var(--accent-fg); }
+  .btn.ghost { background: var(--soft); color: var(--fg); border: 1px solid var(--line); }
+  .btn[disabled] { opacity: .55; cursor: default; }
+  .msg { min-height: 1.3em; font-size: .92rem; color: var(--warn); }
+  .msg.ok { color: var(--go); }
+
+  #resultado { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 12px; }
+  .scroll { overflow-x: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+  table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+  th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  thead th { background: var(--accent); color: var(--accent-fg); font-size: .85rem; font-weight: 600; }
+  tfoot td { font-weight: 700; background: var(--soft); border-bottom: 0; }
+  tbody tr:last-child td { border-bottom: 0; }
+  .details { display: grid; grid-template-columns: 1fr; gap: 12px; }
+  @media (min-width: 720px) { .details { grid-template-columns: 1fr 1fr; } }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; min-width: 0; }
+  .card h3 { margin: 0 0 6px; font: 700 1rem var(--font-display); }
+  .card h3 small { font: 500 .8rem var(--font-body); color: var(--muted); margin-left: 6px; }
+  .card ul { list-style: none; margin: 0; padding: 0; }
+  .card li { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+  .card li:first-child { border-top: 0; }
+  .card li span:last-child { font-weight: 600; white-space: nowrap; }
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+  .mail { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+  .addr { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .addr code { font: 600 1.05rem var(--font-body); background: var(--soft); border-radius: 8px; padding: 10px 12px; user-select: all; overflow-wrap: anywhere; }
+  .note { color: var(--muted); font-size: .9rem; }
+  @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; } }
+</style>
+</head>
+<body>
+<main class="wrap">
+  <header>
+    <div class="brand">Nómades Foods</div>
+    <h1>Mezclas de empanadas</h1>
+    <p class="lead">Escribe cuántas empanadas de cada tipo vas a hacer. Los tipos que no vayas a hacer déjalos en 0.</p>
+  </header>
+
+  <section class="grid" id="lista" aria-label="Cantidad por tipo de empanada"></section>
+
+  <div class="opts">
+    <label><input type="checkbox" id="harina"> Incluir la harina del queso en el detalle</label>
+    <button class="link" id="limpiar" type="button">Limpiar todo</button>
+  </div>
+
+  <p class="msg" id="estado" role="status" aria-live="polite"></p>
+
+  <section id="resultado" hidden aria-label="Resultado"></section>
+
+  <div class="bar">
+    <div class="total"><b id="total">0</b><span>empanadas en total</span></div>
+    <button class="btn" id="calcular" type="button">Calcular mezclas</button>
+  </div>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+(function () {
+  var DESTINO = "pedidos@nomadesfoods.com";
+
+  // Cantidades de UNA tanda en gramos (g), cucharaditas (cdta) o unidades (un). "rinde" = empanadas por tanda.
+  var R = {
+    "Camarón": {rinde:70, queso:4000, harina:4000, bechamel:4000, caldo:null,
+      otros:[["Camarones",3500,"g"],["Ciboulette",80,"g"],["Aliño completo",1,"cdta"]]},
+    "Mechada": {rinde:70, queso:4000, harina:4000, bechamel:0, caldo:["vacuno",1500],
+      otros:[["Carne mechada",2800,"g"]]},
+    "Albahaca": {rinde:50, queso:3000, harina:2000, bechamel:1000, caldo:null,
+      otros:[["Tomate",1500,"g"],["Albahaca",200,"g"],["Aliño completo",1,"cdta"],["Sal",1,"cdta"],["Aceite",160,"g"]]},
+    "Champiñón queso": {rinde:20, queso:1530, harina:2000, bechamel:470, caldo:null,
+      otros:[["Champiñón",1000,"g"],["Aliño completo",0.25,"cdta"],["Sal",0.5,"cdta"]]},
+    "Chaparrita": {rinde:50, queso:3500, harina:3500, bechamel:0, caldo:null,
+      otros:[["Salchichas",50,"un"]]},
+    "Jamón queso": {rinde:10, queso:350, harina:500, bechamel:0, caldo:null,
+      otros:[["Jamón sándwich",350,"g"]]},
+    "Queso": {rinde:50, queso:3500, harina:3500, bechamel:0, caldo:null, otros:[]},
+    "Champiñón tomate": {rinde:140, queso:4000, harina:4000, bechamel:4000, caldo:null,
+      otros:[["Champiñón",3200,"g"],["Tomate",7000,"g"],["Aliño completo",2,"cdta"],["Sal",6,"cdta"],["Comino",1,"cdta"],["Aceite",250,"g"]]},
+    "Empaburguer": {rinde:20, queso:0, harina:0, bechamel:0, caldo:null,
+      otros:[["Hamburguesas",20,"un"],["Láminas de queso cheddar",20,"un"],["Tocinos (cortar en 2)",10,"un"],["Pepinillo picado",100,"g"],["Mostaza",250,"g"],["Ketchup",400,"g"]]},
+    "Napolitana": {rinde:100, queso:2500, harina:2500, bechamel:2500, caldo:null,
+      otros:[["Jamón",1500,"g"],["Tomate",7000,"g"],["Orégano",100,"g"],["Aliño completo",1,"cdta"],["Comino",1,"cdta"],["Sal",4,"cdta"]]},
+    "Pollo queso": {rinde:100, queso:3500, harina:3500, bechamel:3500, caldo:["pollo",2000],
+      otros:[["Pollo",5000,"g"],["Aliño completo",1,"cdta"]]},
+    "Espinaca": {rinde:70, queso:3000, harina:3000, bechamel:1500, caldo:null,
+      otros:[["Mezcla de espinaca",5000,"g"],["Choclo",1000,"g"],["Aliño completo",1,"cdta"]]},
+    "Aceituna": {rinde:60, queso:3000, harina:3000, bechamel:3000, caldo:null,
+      otros:[["Aceitunas",1600,"g"],["Comino",1,"cdta"]]}
+  };
+  var TIPOS = Object.keys(R);
+
+  var $ = function (id) { return document.getElementById(id); };
+  var fmt = function (n) { return n.toLocaleString("es-CL", {maximumFractionDigits: 3}); };
+  var aKg = function (g) { return Math.round(g) / 1000; };
+
+  function escalar(c, u, f) {
+    var v = c * f;
+    if (u === "un") return [Math.ceil(v - 1e-9), "un"];
+    if (u === "cdta") return [Math.round(v * 100) / 100, "cdta"];
+    if (v >= 1000) return [Math.round(v) / 1000, "kg"];
+    return [Math.round(v), "g"];
+  }
+
+  function calcular(cant, conHarina) {
+    var out = [];
+    TIPOS.forEach(function (t) {
+      var n = cant[t] || 0; if (n <= 0) return;
+      var r = R[t], f = n / r.rinde;
+      var it = { tipo: t, n: n,
+        queso: r.queso ? aKg(r.queso * f) : null,
+        bechamel: r.bechamel ? aKg(r.bechamel * f) : null,
+        caldo: r.caldo ? aKg(r.caldo[1] * f) : null,
+        caldoTipo: r.caldo ? r.caldo[0] : null,
+        detalle: [] };
+      r.otros.forEach(function (o) { var e = escalar(o[1], o[2], f); it.detalle.push([o[0], e[0], e[1]]); });
+      if (conHarina && r.harina) { var h = escalar(r.harina, "g", f); it.detalle.push(["Harina (para el queso)", h[0], h[1]]); }
+      out.push(it);
+    });
+    return out;
+  }
+
+  // ---------- Lista de entrada ----------
+  var inputs = {};
+  var lista = $("lista");
+  TIPOS.forEach(function (t, i) {
+    var row = document.createElement("div"); row.className = "row";
+    var name = document.createElement("div"); name.className = "name";
+    name.innerHTML = "<b></b><small></small>";
+    name.firstChild.textContent = t;
+    name.lastChild.textContent = "tanda base: " + R[t].rinde;
+    var st = document.createElement("div"); st.className = "stepper";
+    var minus = document.createElement("button"); minus.type = "button"; minus.textContent = "−"; minus.setAttribute("aria-label", "Restar 10 a " + t);
+    var inp = document.createElement("input"); inp.type = "number"; inp.min = "0"; inp.step = "1"; inp.inputMode = "numeric"; inp.value = "0"; inp.id = "q" + i; inp.setAttribute("aria-label", "Cantidad de " + t);
+    var plus = document.createElement("button"); plus.type = "button"; plus.textContent = "+"; plus.setAttribute("aria-label", "Sumar 10 a " + t);
+    minus.onclick = function () { inp.value = Math.max(0, leer(inp) - 10); cambio(); };
+    plus.onclick = function () { inp.value = leer(inp) + 10; cambio(); };
+    inp.addEventListener("input", cambio);
+    inp.addEventListener("focus", function () { inp.select(); });
+    st.append(minus, inp, plus); row.append(name, st); lista.append(row);
+    inputs[t] = { inp: inp, row: row };
+  });
+
+  function leer(inp) { var v = parseInt(inp.value, 10); return isNaN(v) || v < 0 ? 0 : v; }
+  function cantidades() { var c = {}; TIPOS.forEach(function (t) { c[t] = leer(inputs[t].inp); }); return c; }
+  function cambio() {
+    var total = 0;
+    TIPOS.forEach(function (t) { var v = leer(inputs[t].inp); total += v; inputs[t].row.classList.toggle("on", v > 0); });
+    $("total").textContent = fmt(total);
+    estado("");
+  }
+  function estado(txt, ok) { var e = $("estado"); e.textContent = txt; e.className = "msg" + (ok ? " ok" : ""); }
+
+  $("limpiar").onclick = function () {
+    TIPOS.forEach(function (t) { inputs[t].inp.value = "0"; });
+    $("resultado").hidden = true; $("resultado").innerHTML = ""; lastBlob = null; cambio();
+  };
+
+  // ---------- Resultado en pantalla ----------
+  var lastBlob = null, lastName = "";
+
+  function celda(v) { return v == null ? "" : fmt(v); }
+
+  function dibujar(items) {
+    var box = $("resultado"); box.innerHTML = "";
+    var h = document.createElement("h2"); h.textContent = "Resumen de la producción"; box.append(h);
+
+    var tq = 0, tb = 0, tc = 0;
+    var html = '<div class="scroll"><table><thead><tr><th>Tipo de empanada</th><th>Queso (kg)</th><th>Bechamel (kg)</th><th>Caldo vacuno / pollo (kg)</th></tr></thead><tbody>';
+    items.forEach(function (it) {
+      tq += it.queso || 0; tb += it.bechamel || 0; tc += it.caldo || 0;
+      html += "<tr><td>" + it.tipo + " (" + fmt(it.n) + ")</td><td>" + celda(it.queso) + "</td><td>" + celda(it.bechamel) + "</td><td>" +
+        (it.caldo != null ? fmt(it.caldo) + " <small>(" + it.caldoTipo + ")</small>" : "") + "</td></tr>";
+    });
+    html += "</tbody><tfoot><tr><td>TOTAL</td><td>" + fmt(Math.round(tq * 1000) / 1000) + "</td><td>" + fmt(Math.round(tb * 1000) / 1000) + "</td><td>" + fmt(Math.round(tc * 1000) / 1000) + "</td></tr></tfoot></table></div>";
+    var wrap = document.createElement("div"); wrap.innerHTML = html; box.append(wrap.firstChild);
+
+    var det = document.createElement("div"); det.className = "details";
+    items.forEach(function (it) {
+      if (!it.detalle.length) return;
+      var c = document.createElement("div"); c.className = "card";
+      var t = document.createElement("h3"); t.textContent = it.tipo;
+      var s = document.createElement("small"); s.textContent = fmt(it.n) + " empanadas"; t.append(s);
+      var ul = document.createElement("ul");
+      it.detalle.forEach(function (d) {
+        var li = document.createElement("li"), a = document.createElement("span"), b = document.createElement("span");
+        a.textContent = d[0]; b.textContent = fmt(d[1]) + " " + d[2]; li.append(a, b); ul.append(li);
+      });
+      c.append(t, ul); det.append(c);
+    });
+    if (det.children.length) box.append(det);
+
+    var act = document.createElement("div"); act.className = "actions";
+    var dl = document.createElement("button"); dl.type = "button"; dl.className = "btn alt"; dl.id = "descargar"; dl.textContent = "Descargar Excel";
+    dl.onclick = descargar; act.append(dl);
+    if (puedeCompartir()) {
+      var sh = document.createElement("button"); sh.type = "button"; sh.className = "btn ghost"; sh.textContent = "Compartir Excel";
+      sh.onclick = compartir; act.append(sh);
+    }
+    box.append(act);
+
+    var mail = document.createElement("div"); mail.className = "mail";
+    var mh = document.createElement("h2"); mh.textContent = "Enviar el Excel por correo";
+    var addr = document.createElement("div"); addr.className = "addr";
+    var code = document.createElement("code"); code.textContent = DESTINO; code.id = "dir";
+    var cp = document.createElement("button"); cp.type = "button"; cp.className = "btn ghost"; cp.textContent = "Copiar dirección";
+    cp.onclick = copiar;
+    var a = document.createElement("a"); a.className = "btn ghost"; a.style.textDecoration = "none"; a.style.display = "inline-flex"; a.style.alignItems = "center";
+    a.href = "mailto:" + DESTINO + "?subject=" + encodeURIComponent("Producción de empanadas " + fechaTxt()) + "&body=" + encodeURIComponent("Adjunto el desglose de ingredientes de la producción del día.");
+    a.textContent = "Abrir correo";
+    addr.append(code, cp, a);
+    var nt = document.createElement("p"); nt.className = "note";
+    nt.textContent = "Descarga el Excel (o usa «Compartir Excel» si aparece) y envíalo a esta dirección. «Abrir correo» abre tu app de correo con la dirección y el asunto listos; recuerda adjuntar el archivo. Esta página no envía el correo por ti.";
+    mail.append(mh, addr, nt); box.append(mail);
+    box.hidden = false;
+  }
+
+  function copiar(ev) {
+    var btn = ev.currentTarget;
+    var listo = function () { btn.textContent = "Copiada ✔"; setTimeout(function () { btn.textContent = "Copiar dirección"; }, 2000); };
+    try {
+      navigator.clipboard.writeText(DESTINO).then(listo, sel);
+    } catch (e) { sel(); }
+    function sel() {
+      var r = document.createRange(); r.selectNodeContents($("dir"));
+      var s = window.getSelection(); s.removeAllRanges(); s.addRange(r);
+      btn.textContent = "Dirección seleccionada";
+    }
+  }
+
+  function fechaTxt() { var d = new Date(); return String(d.getDate()).padStart(2, "0") + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + d.getFullYear(); }
+  function fechaArchivo() { var d = new Date(); return d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0"); }
+
+  // ---------- Excel ----------
+  async function construirExcel(items) {
+    var wb = new ExcelJS.Workbook();
+    var ws = wb.addWorksheet("Producción");
+    var AZUL = "FF2F6F8F", CLARO = "FFDCEBF2";
+    var thin = { style: "thin", color: { argb: "FF999999" } };
+    var borde = { top: thin, left: thin, bottom: thin, right: thin };
+    function est(c, o) {
+      o = o || {};
+      c.font = { bold: !!o.bold, color: { argb: o.color || "FF000000" }, size: o.size || 11 };
+      if (o.fill) c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: o.fill } };
+      c.alignment = { horizontal: o.align || "center", vertical: "middle" };
+      c.border = borde;
+      if (o.fmt) c.numFmt = o.fmt;
+    }
+    ws.getColumn(1).width = 34; ws.getColumn(2).width = 16; ws.getColumn(3).width = 16; ws.getColumn(4).width = 30;
+
+    var t = ws.getCell("A1"); t.value = "Nómades Foods - Mezclas de empanadas (" + fechaTxt() + ")"; t.font = { bold: true, size: 14 };
+
+    var fila = 3;
+    ["Tipo de empanada", "Queso (kg)", "Bechamel (kg)", "Caldo vacuno / pollo (kg)"].forEach(function (h, i) {
+      var c = ws.getCell(fila, i + 1); c.value = h; est(c, { bold: true, fill: AZUL, color: "FFFFFFFF" });
+    });
+    var tq = 0, tb = 0, tc = 0;
+    items.forEach(function (it) {
+      fila++;
+      var a = ws.getCell(fila, 1); a.value = it.tipo + " (" + it.n + ")"; est(a, { align: "left" });
+      var b = ws.getCell(fila, 2); b.value = it.queso; est(b, { fmt: "0.000" });
+      var c = ws.getCell(fila, 3); c.value = it.bechamel; est(c, { fmt: "0.000" });
+      var d = ws.getCell(fila, 4); d.value = it.caldo;
+      est(d, { fmt: it.caldoTipo ? '0.000" (' + it.caldoTipo + ')"' : "0.000" });
+      tq += it.queso || 0; tb += it.bechamel || 0; tc += it.caldo || 0;
+    });
+    var last = fila; fila++;
+    var tt = ws.getCell(fila, 1); tt.value = "TOTAL"; est(tt, { bold: true, fill: CLARO, align: "left" });
+    [["B", 2, tq], ["C", 3, tb], ["D", 4, tc]].forEach(function (x) {
+      var c = ws.getCell(fila, x[1]);
+      c.value = { formula: "SUM(" + x[0] + "4:" + x[0] + last + ")", result: Math.round(x[2] * 1000) / 1000 };
+      est(c, { bold: true, fill: CLARO, fmt: "0.000" });
+    });
+
+    fila += 2;
+    items.forEach(function (it) {
+      if (!it.detalle.length) return;
+      var h = ws.getCell(fila, 1); h.value = it.tipo + " - " + it.n + " empanadas"; h.font = { bold: true, size: 12 };
+      fila++;
+      ["Ingrediente", "Cantidad", "Unidad"].forEach(function (x, i) {
+        var c = ws.getCell(fila, i + 1); c.value = x; est(c, { bold: true, fill: AZUL, color: "FFFFFFFF" });
+      });
+      it.detalle.forEach(function (d) {
+        fila++;
+        var a = ws.getCell(fila, 1); a.value = d[0]; est(a, { align: "left" });
+        var b = ws.getCell(fila, 2); b.value = d[1]; est(b);
+        var u = ws.getCell(fila, 3); u.value = d[2]; est(u);
+      });
+      fila += 2;
+    });
+
+    var buf = await wb.xlsx.writeBuffer();
+    return new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  }
+
+  $("calcular").onclick = async function () {
+    var items = calcular(cantidades(), $("harina").checked);
+    if (!items.length) { estado("Escribe una cantidad mayor a 0 en al menos un tipo de empanada."); return; }
+    dibujar(items);
+    $("resultado").scrollIntoView({ behavior: "smooth", block: "start" });
+    lastBlob = null;
+    var dl = $("descargar");
+    if (typeof ExcelJS === "undefined") {
+      dl.disabled = true; estado("No se pudo cargar el generador de Excel. Revisa tu conexión a internet y recarga la página. El resumen de arriba sí está listo.");
+      return;
+    }
+    try {
+      lastBlob = await construirExcel(items);
+      lastName = "produccion_" + fechaArchivo() + ".xlsx";
+      estado("Listo. Puedes descargar el Excel.", true);
+    } catch (e) {
+      dl.disabled = true; estado("No se pudo crear el Excel. Intenta de nuevo.");
+    }
+  };
+
+  var XLSX_TYPE = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  function puedeCompartir() {
+    try {
+      var f = new File(["x"], "a.xlsx", { type: XLSX_TYPE });
+      return !!(navigator.canShare && navigator.share && navigator.canShare({ files: [f] }));
+    } catch (e) { return false; }
+  }
+
+  async function compartir() {
+    if (!lastBlob) { estado("Primero calcula las mezclas."); return; }
+    var f = new File([lastBlob], lastName, { type: XLSX_TYPE });
+    try {
+      await navigator.share({ files: [f], title: "Producción de empanadas " + fechaTxt(), text: "Para: " + DESTINO });
+      estado("Elige tu app de correo y envíalo a " + DESTINO + ".", true);
+    } catch (e) {
+      if (e && e.name === "AbortError") return;
+      estado("No se pudo compartir. Usa «Descargar Excel».");
+    }
+  }
+
+  function descargar() {
+    if (!lastBlob) { estado("Primero calcula las mezclas."); return; }
+    try {
+      var url = URL.createObjectURL(lastBlob);
+      var a = document.createElement("a"); a.href = url; a.download = lastName;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function () { URL.revokeObjectURL(url); }, 10000);
+      estado("Excel descargado: " + lastName + ". Búscalo en Descargas y adjúntalo en tu correo.", true);
+    } catch (e) {
+      estado("No se pudo guardar el archivo. Intenta de nuevo.");
+    }
+  }
+
+  cambio();
+})();
+</script>
+</body></html>
